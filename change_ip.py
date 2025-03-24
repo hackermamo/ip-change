@@ -1,14 +1,33 @@
 import subprocess
 import time
 import requests
+import os
+
+# Function to print banner
+def print_banner():
+    os.system('clear')
+    print("\033[38;5;208m")  # Orange color
+    print(r"""
+ ██╗██████╗      ██████╗██╗  ██╗ █████╗ ███╗   ██╗ ██████╗ ███████╗██████╗ 
+ ██║██╔══██╗    ██╔════╝██║  ██║██╔══██╗████╗  ██║██╔════╝ ██╔════╝██╔══██╗
+ ██║██████╔╝    ██║     ███████║███████║██╔██╗ ██║██║  ███╗█████╗  ██████╔╝
+ ██║██╔═══╝     ██║     ██╔══██║██╔══██║██║╚██╗██║██║   ██║██╔══╝  ██╔══██╗
+ ██║██║         ╚██████╗██║  ██║██║  ██║██║ ╚████║╚██████╔╝███████╗██║  ██║
+ ╚═╝╚═╝          ╚═════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝ ╚══════╝╚═╝  ╚═╝                                                                         
+    """)
+    print("\033[0m")
+    print("\033[1;36m" + "Version: 1.0" + "\033[0m")
+    print("\033[1;33m" + "Code Author: hackermamo" + "\033[0m")
+    print("\033[1;36m" + "GitHub Profile : https://github.com/hackermamo" + "\033[0m")
+    print("\033[1;31m" + "YouTube Channel: https://www.youtube.com/@TRIPURAJOBSTUDYINFORMATION11" + "\033[0m\n")
 
 # Function to check if TOR is installed
 def check_tor():
     try:
         subprocess.run(["tor", "--version"], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        print("TOR is already installed.")
+        print("\033[1;34m[*] TOR is already installed.\033[0m")
     except subprocess.CalledProcessError:
-        print("Installing TOR...")
+        print("\033[1;33m[!] Installing TOR...\033[0m")
         subprocess.run(["sudo", "apt", "update", "-y"])
         subprocess.run(["sudo", "apt", "install", "tor", "-y"])
 
@@ -18,15 +37,14 @@ def install_python_modules():
     for module in required_modules:
         try:
             __import__(module)
-            print(f"{module} is already installed.")
+            print(f"\033[1;34m[*] {module} is already installed.\033[0m")
         except ImportError:
-            print(f"Installing {module}...")
+            print(f"\033[1;33m[!] Installing {module}...\033[0m")
             subprocess.run(["pip3", "install", module])
 
 # Function to send signal to change the IP via TOR
 def change_ip():
-    print("IP change signal sent successfully.")
-    # Send the "NEWNYM" signal to TOR to change IP
+    print("\033[1;32m[+] Sending IP change signal...\033[0m")
     subprocess.run(['echo', '-e', 'AUTHENTICATE ""\r\nSIGNAL NEWNYM\r\nQUIT', '|', 'nc', '127.0.0.1', '9051'])
 
 # Function to get the current IP address using TOR
@@ -35,23 +53,30 @@ def get_current_ip():
         response = requests.get("https://api.ipify.org", proxies={"http": "socks5h://127.0.0.1:9050", "https": "socks5h://127.0.0.1:9050"})
         return response.text
     except requests.RequestException as e:
-        print(f"Error fetching IP: {e}")
+        print(f"\033[1;31m[!] Error fetching IP: {e}\033[0m")
         return None
 
 # Main function to setup TOR and Python environment, and run the IP change loop
 def main():
+    print_banner()
     check_tor()  # Check and install TOR if necessary
     install_python_modules()  # Ensure required Python modules are installed
 
-    # Main loop that changes IP every 15 seconds
-    while True:
-        print("Changing IP...")
-        change_ip()  # Change the IP
-        time.sleep(10)  # Wait 10 seconds before checking the new IP
-        new_ip = get_current_ip()  # Get the new IP
-        if new_ip:
-            print(f"New IP: {new_ip}")  # Display the new IP
-        time.sleep(10)  # Wait a bit before changing the IP again
+    print("\033[1;36m[*] Changing your IP every 15 seconds...\033[0m")
+    print("\033[1;33m[!] Press Ctrl + C to stop.\033[0m\n")
+
+    try:
+        while True:
+            print("\033[1;34m[*] Changing IP...\033[0m")
+            change_ip()  # Change the IP
+            time.sleep(10)  # Wait 10 seconds before checking the new IP
+            new_ip = get_current_ip()  # Get the new IP
+            if new_ip:
+                print(f"\033[1;32m[+] New IP: {new_ip}\033[0m")
+            time.sleep(10)  # Wait before changing again
+    except KeyboardInterrupt:
+        print("\n\033[1;31m[!] Exiting... Stopping TOR service.\033[0m")
+        subprocess.run(["sudo", "systemctl", "stop", "tor"])
 
 if __name__ == "__main__":
     main()
