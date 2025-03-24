@@ -62,7 +62,7 @@ def main():
     check_tor()  # Check and install TOR if necessary
     install_python_modules()  # Ensure required Python modules are installed
 
-    print("\033[1;36m[*] Changing your IP every 15 seconds...\033[0m")
+    print("\033[1;36m[*] Changing your IP every 10 seconds...\033[0m")
     print("\033[1;33m[!] Press Ctrl + C to stop.\033[0m\n")
 
     try:
